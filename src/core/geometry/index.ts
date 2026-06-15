@@ -1,5 +1,6 @@
 import type {
 	CreaseDefinition,
+	FaceDefinition,
 	FaceTransform,
 	OrigamiDocument,
 	OrigamiState,
@@ -75,6 +76,30 @@ export function mapPoint2ToWorld(point: Point2, sheet: SheetDefinition): Point3 
 	const { width, height } = getSheetWorldDimensions(sheet);
 
 	return [(point[0] - 0.5) * width, 0, (0.5 - point[1]) * height];
+}
+
+export function getFaceWorldVertices(document: OrigamiDocument, face: FaceDefinition): Point3[] {
+	return face.pointIds
+		.map((pointId) => document.geometry.points[pointId])
+		.filter((point): point is NonNullable<typeof point> => Boolean(point))
+		.map((point) => mapPoint2ToWorld(point.coord2d, document.sheet));
+}
+
+export function getFaceCentroid(points: Point3[]): Point3 {
+	if (points.length === 0) {
+		return [0, 0, 0];
+	}
+
+	const sum = points.reduce<Point3>(
+		([sumX, sumY, sumZ], [x, y, z]) => [sumX + x, sumY + y, sumZ + z],
+		[0, 0, 0],
+	);
+
+	return [sum[0] / points.length, sum[1] / points.length, sum[2] / points.length];
+}
+
+export function toLocalFaceVertices(points: Point3[], centroid: Point3): Point2[] {
+	return points.map(([x, , z]) => [x - centroid[0], z - centroid[2]]);
 }
 
 export function getCreaseById(document: OrigamiDocument, creaseId?: string): CreaseDefinition | undefined {

@@ -22,12 +22,18 @@ export const sampleDocument: OrigamiDocument = {
       p2: { coord2d: [1, 0] },
       p3: { coord2d: [1, 1] },
       p4: { coord2d: [0, 1] },
+      p5: { coord2d: [0.5, 0.5], label: "center" },
     },
     creases: [
       { id: "c1", fromPointId: "p1", toPointId: "p3", kind: "reference" },
       { id: "c2", fromPointId: "p4", toPointId: "p2", kind: "reference" },
     ],
-    faces: [{ id: "f1", pointIds: ["p1", "p2", "p3", "p4"], side: "both" }],
+    faces: [
+      { id: "f1", pointIds: ["p1", "p2", "p5"], side: "both" },
+      { id: "f2", pointIds: ["p2", "p3", "p5"], side: "both" },
+      { id: "f3", pointIds: ["p3", "p4", "p5"], side: "both" },
+      { id: "f4", pointIds: ["p4", "p1", "p5"], side: "both" },
+    ],
     initialState: {
       id: "state-0",
       faceTransforms: {
@@ -35,8 +41,20 @@ export const sampleDocument: OrigamiDocument = {
           translation: [0, 0, 0],
           rotationEuler: [0, 0, 0],
         },
+        f2: {
+          translation: [0, 0, 0],
+          rotationEuler: [0, 0, 0],
+        },
+        f3: {
+          translation: [0, 0, 0],
+          rotationEuler: [0, 0, 0],
+        },
+        f4: {
+          translation: [0, 0, 0],
+          rotationEuler: [0, 0, 0],
+        },
       },
-      faceOrder: ["f1"],
+      faceOrder: ["f1", "f2", "f3", "f4"],
     },
   },
   steps: [
@@ -48,7 +66,7 @@ export const sampleDocument: OrigamiDocument = {
       command: {
         type: "fold",
         foldKind: "valley",
-        targetFaceIds: ["f1"],
+        targetFaceIds: ["f1", "f4"],
         creaseId: "c1",
         angleDeg: 180,
         resultStateId: "state-1",
@@ -105,7 +123,7 @@ export const sampleDocument: OrigamiDocument = {
       command: {
         type: "fold",
         foldKind: "mountain",
-        targetFaceIds: ["f1"],
+        targetFaceIds: ["f1", "f2"],
         creaseId: "c2",
         angleDeg: 135,
         resultStateId: "state-4",
@@ -125,7 +143,7 @@ export const sampleDocument: OrigamiDocument = {
       description: "将纸张重新展开，观察已经形成的折痕和朝向。",
       command: {
         type: "unfold",
-        targetFaceIds: ["f1"],
+        targetFaceIds: ["f1", "f2", "f3", "f4"],
         resultStateId: "state-5",
       },
       presentation: {

@@ -25,6 +25,13 @@ function withFaceTransform(state: OrigamiState, faceId: string, transform: FaceT
 	state.faceTransforms[faceId] = transform;
 }
 
+function moveFaceIdsToTop(faceOrder: string[], targetFaceIds: string[]) {
+	const targetIds = new Set(targetFaceIds);
+	const remaining = faceOrder.filter((faceId) => !targetIds.has(faceId));
+	const moved = faceOrder.filter((faceId) => targetIds.has(faceId));
+	return [...remaining, ...moved];
+}
+
 function getResultStateId(step: OrigamiStep, fallbackIndex: number) {
 	if ("resultStateId" in step.command && typeof step.command.resultStateId === "string") {
 		return step.command.resultStateId;
@@ -51,6 +58,8 @@ function executeFold(document: OrigamiDocument, previousState: OrigamiState, ste
 		transform.translation = addTranslation(transform.translation, [midpoint[0] * 0.02, lift, midpoint[2] * 0.02]);
 		withFaceTransform(nextState, faceId, transform);
 	});
+
+	nextState.faceOrder = moveFaceIdsToTop(nextState.faceOrder, step.command.targetFaceIds);
 
 	nextState.id = getResultStateId(step, stepIndex + 1);
 	return nextState;
@@ -99,6 +108,8 @@ function executeUnfold(document: OrigamiDocument, previousState: OrigamiState, s
 			});
 		}
 	});
+
+	nextState.faceOrder = [...document.geometry.initialState.faceOrder];
 
 	nextState.id = getResultStateId(step, stepIndex + 1);
 	return nextState;

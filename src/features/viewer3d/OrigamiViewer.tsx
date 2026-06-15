@@ -1,7 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import { DoubleSide, Shape, Vector2 } from "three";
 import type { OrigamiDocument, OrigamiState, OrigamiStep } from "../../core/document/types";
-import { SHEET_WORLD_SIZE } from "../../core/geometry";
+import { getFaceCentroid, getFaceWorldVertices, toLocalFaceVertices } from "../../core/geometry";
 
 type OrigamiViewerProps = {
   document: OrigamiDocument;
@@ -11,18 +12,49 @@ type OrigamiViewerProps = {
 
 function PaperModel({ document, currentState }: Omit<OrigamiViewerProps, "currentStep">) {
   const frontColor = document.sheet.frontColor ?? "#ffd36e";
-  const faceTransform = currentState.faceTransforms.f1 ?? document.geometry.initialState.faceTransforms.f1;
-  const width = document.sheet.width * SHEET_WORLD_SIZE;
-  const height = document.sheet.height * SHEET_WORLD_SIZE;
+  const backColor = document.sheet.backColor ?? "#fff8e7";
 
   return (
     <group rotation={[0, 0.45, 0]}>
-      <group position={faceTransform.translation} rotation={faceTransform.rotationEuler}>
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[width, 0.03, height]} />
-          <meshStandardMaterial color={frontColor} />
-        </mesh>
-      </group>
+      {document.geometry.faces.map((face) => {
+        const faceTransform = currentState.faceTransforms[face.id] ?? document.geometry.initialState.faceTransforms[face.id];
+        const worldVertices = getFaceWorldVertices(document, face);
+        const centroid = getFaceCentroid(worldVertices);
+        const localVertices = toLocalFaceVertices(worldVertices, centroid);
+        const faceShape = new Shape(localVertices.map(([x, z]) => new Vector2(x, z)));
+        const layerIndex = currentState.faceOrder.indexOf(face.id);
+        const layerOffset = layerIndex >= 0 ? layerIndex * 0.01 : 0;
+
+        return (
+          <group
+            key={face.id}
+            position={[
+              centroid[0] + faceTransform.translation[0],
+              centroid[1] + faceTransform.translation[1] + layerOffset,
+              centroid[2] + faceTransform.translation[2],
+            ]}
+            rotation={faceTransform.rotationEuler}
+            renderOrder={layerIndex}
+          >
+            <mesh castShadow receiveShadow rotation={[-Math.PI / 2, 0, 0]} renderOrder={layerIndex}>
+              <shapeGeometry args={[faceShape]} />
+              <meshStandardMaterial color={frontColor} side={DoubleSide} />
+            </mesh>
+            <lineLoop rotation={[-Math.PI / 2, 0, 0]} renderOrder={layerIndex + 1}>
+              <bufferGeometry>
+                <bufferAttribute
+                  attach="attributes-position"
+                  args={[
+                    new Float32Array(localVertices.flatMap(([x, z]) => [x, z, 0.012])),
+                    3,
+                  ]}
+                />
+              </bufferGeometry>
+              <lineBasicMaterial color={backColor} />
+            </lineLoop>
+          </group>
+        );
+      })}
       <mesh position={[0, 0.03, 0]}>
         <torusGeometry args={[0.55, 0.01, 8, 64, Math.PI]} />
         <meshStandardMaterial color="#1f2a44" />
