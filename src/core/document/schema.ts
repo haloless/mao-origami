@@ -61,6 +61,18 @@ export const origamiDocumentSchema = z.object({
       })),
       faceOrder: z.array(z.string()),
     }),
+    stateCache: z.array(z.object({
+      stepId: z.string(),
+      beforeStateId: z.string(),
+      afterState: z.object({
+        id: z.string(),
+        faceTransforms: z.record(z.string(), z.object({
+          translation: z.tuple([z.number(), z.number(), z.number()]),
+          rotationEuler: z.tuple([z.number(), z.number(), z.number()]),
+        })),
+        faceOrder: z.array(z.string()),
+      }),
+    })).optional(),
   }),
   steps: z.array(stepSchema),
   playback: z.object({

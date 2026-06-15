@@ -1,4 +1,5 @@
 import type { OrigamiDocument, OrigamiStep } from "../document/types";
+import { buildStepStateCache } from "../commands";
 
 export function getBoundedStepIndex(stepIndex: number, stepCount: number) {
   return Math.min(Math.max(stepIndex, 0), Math.max(stepCount - 1, 0));
@@ -17,4 +18,13 @@ export function getStepDurationMs(document: OrigamiDocument, stepIndex: number, 
   const step = getStepByIndex(document, stepIndex);
   const baseDuration = step.presentation.durationMs ?? 1000;
   return Math.max(250, Math.round(baseDuration / Math.max(speed, 0.1)));
+}
+
+export function getStepStateCache(document: OrigamiDocument) {
+  return document.geometry.stateCache ?? buildStepStateCache(document);
+}
+
+export function getStateForStep(document: OrigamiDocument, stepIndex: number) {
+  const boundedStepIndex = getBoundedStepIndex(stepIndex, document.steps.length);
+  return getStepStateCache(document)[boundedStepIndex]?.afterState ?? document.geometry.initialState;
 }

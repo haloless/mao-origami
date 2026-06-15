@@ -55,6 +55,13 @@ export type GeometryDefinition = {
   creases: CreaseDefinition[];
   faces: FaceDefinition[];
   initialState: OrigamiState;
+  stateCache?: StepStateCache[];
+};
+
+export type StepStateCache = {
+  stepId: string;
+  beforeStateId: string;
+  afterState: OrigamiState;
 };
 
 export type FoldCommand = {

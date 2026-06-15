@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAppStore } from "../../app/store/useAppStore";
 import { origamiDocumentSchema } from "../../core/document/schema";
 import { sampleDocument, sampleDocuments } from "../../core/document/sampleDocument";
-import { getStepDurationMs, getStepProgressLabel } from "../../core/playback/controller";
+import { getStateForStep, getStepDurationMs, getStepProgressLabel } from "../../core/playback/controller";
 import { PlaybackControls } from "../playback-controls/PlaybackControls";
 import { StepPanel } from "../step-panel/StepPanel";
 import { OrigamiViewer } from "../viewer3d/OrigamiViewer";
@@ -54,6 +54,7 @@ export function PlayerPage() {
   }
 
   const currentStep = activeDocument.steps[currentStepIndex];
+  const currentState = getStateForStep(activeDocument, currentStepIndex);
 
   return (
     <main className="page-shell">
@@ -73,7 +74,7 @@ export function PlayerPage() {
 
       <section className="content-grid">
         <div className="panel viewer-panel">
-          <OrigamiViewer document={activeDocument} currentStep={currentStep} />
+          <OrigamiViewer document={activeDocument} currentStep={currentStep} currentState={currentState} />
         </div>
 
         <aside className="panel side-panel">

@@ -5,7 +5,7 @@ export const sampleDocument: OrigamiDocument = {
   metadata: {
     id: "paper-boat-basic",
     title: "小船",
-    description: "用于播放器骨架的示例模型。",
+    description: "用于播放器骨架的示例模型，包含折叠、旋转、翻面和展开步骤。",
     difficulty: "easy",
   },
   sheet: {
@@ -82,20 +82,17 @@ export const sampleDocument: OrigamiDocument = {
     {
       id: "step-3",
       index: 3,
-      title: "折下顶角",
-      description: "将顶部两角向中线折下。",
+      title: "翻到背面",
+      description: "为了继续操作，先把模型翻到背面。",
       command: {
-        type: "fold",
-        foldKind: "valley",
-        targetFaceIds: ["f1"],
-        creaseId: "c2",
-        angleDeg: 120,
+        type: "flip_model",
+        axis: "x",
+        angleDeg: 180,
         resultStateId: "state-3",
       },
       presentation: {
-        durationMs: 1100,
-        highlightCreaseIds: ["c2"],
-        narrationText: "把顶部角向中间折下来。",
+        durationMs: 1000,
+        narrationText: "把模型翻到另一面。",
       },
       validation: { status: "unchecked" },
       editorMeta: { draft: false },
@@ -103,6 +100,44 @@ export const sampleDocument: OrigamiDocument = {
     {
       id: "step-4",
       index: 4,
+      title: "沿另一条对角线折叠",
+      description: "沿另一条对角线再进行一次折叠。",
+      command: {
+        type: "fold",
+        foldKind: "mountain",
+        targetFaceIds: ["f1"],
+        creaseId: "c2",
+        angleDeg: 135,
+        resultStateId: "state-4",
+      },
+      presentation: {
+        durationMs: 1100,
+        highlightCreaseIds: ["c2"],
+        narrationText: "沿另一条对角线压出新的折痕。",
+      },
+      validation: { status: "unchecked" },
+      editorMeta: { draft: false },
+    },
+    {
+      id: "step-5",
+      index: 5,
+      title: "展开并观察结果",
+      description: "将纸张重新展开，观察已经形成的折痕和朝向。",
+      command: {
+        type: "unfold",
+        targetFaceIds: ["f1"],
+        resultStateId: "state-5",
+      },
+      presentation: {
+        durationMs: 900,
+        narrationText: "把纸重新展开，看看当前结果。",
+      },
+      validation: { status: "unchecked" },
+      editorMeta: { draft: false },
+    },
+    {
+      id: "step-6",
+      index: 6,
       title: "完成展示",
       description: "停留在当前状态，观察最后结果。",
       command: {
